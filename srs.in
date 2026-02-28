@@ -1,0 +1,231 @@
+# >>>> SIMULATION CONFIG FILE FOR penEasy >>>>>>>>>
+#
+# Case description:
+#   SRS cone simulation with 10mm aperture. 6 MeV photon beam in -Z.
+#
+# Last update:
+#   2025-05-30 by Joel Minj
+#
+
+# >>>> GENERAL >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+[SECTION CONFIG v.2013-03-18]
+  1.0e7                NUMBER OF HISTORIES
+  3600.0               ALLOTTED TIME (s) (+ FOR REAL TIME)
+  600.0                UPDATE INTERVAL (s)
+  1 1                  INITIAL RANDOM SEEDS
+  -                    SEEDS FILE; MUST ENTER SEEDS=0,0 TO APPLY
+  -                    RESTART FILE; MUST ENTER SEEDS=-1,-1 TO APPLY
+  srs.dmp         OUTPUT DUMP FILE; ENTER '-' FOR 'NO DUMP'
+  600.0                INTERVAL BETWEEN DUMPS (s)
+[END OF CONFIG SECTION]
+
+
+# >>>> SOURCES >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+[SECTION SOURCE BOX ISOTROPIC GAUSS SPECTRUM v.2014-12-21]
+  ON                   STATUS (ON or OFF)
+  2                    PARTICLE TYPE (2=PHOTON)
+  SUBSECTION FOR PHOTON POLARIZATION:
+  0                    ACTIVATE PHOTON POLARIZATION PHYSICS (0=NO)
+  0.0 0.0 0.0          STOKES PARAMETERS
+  SUBSECTION FOR PARTICLE POSITION:
+  0.0  0.0  74.0       COORDINATES (cm) OF BOX CENTER (point source)
+  0.89  0.89  0.0      BOX SIDES (cm) (point source)
+  0.0  0.0             FWHMs (cm) OF GAUSSIAN X,Y DISTRIBUTIONS
+  0.0  0.0  0.0        EULER ANGLES [OMEGA,THETA,PHI](deg) FOR BOX ROTATION
+  0.0  0.0  0.0        TRANSLATION [DX,DY,DZ](cm) OF BOX CENTER POSITION
+  0                    SOURCE MATERIAL (0=DON'T CARE)
+  SUBSECTION FOR PARTICLE DIRECTION:
+  0.0  0.0  -1.0       DIRECTION VECTOR (-Z direction)
+  0.0  0.0             DIRECTION POLAR ANGLE INTERVAL [THETA0,THETA1] (deg) (Parallel)
+  0.0 360.0            DIRECTION AZIMUTHAL ANGLE INTERVAL PHI0 AND DeltaPHI (deg)
+  0                    APPLY ALSO TO DIRECTION THE ROTATION USED FOR BOX POSITION (0=NO)
+  SUBSECTION FOR PARTICLE ENERGY:
+  -                    ENERGY SPECTRUM FILE NAME
+  Energy(eV)  Probability  DUMMY HEADER LINE
+  6.0e6       1.0        6 MeV photons
+  6.0e6      -1.0        End of spectrum table
+  0.0                  FWHM(eV) OF GAUSSIAN ENERGY DISTRIB.
+[END OF BIGS SECTION]
+
+[SECTION SOURCE PHASE SPACE FILE v.2009-06-15]
+  OFF                   STATUS (ON or OFF)
+  0                    PSF FORMAT (0=STANDARD penEasy ASCII)
+  output.psf           PSF FILENAME (from Step 1)
+  20                   SPLITTING FACTOR (Increase for more stats if PSF is limited, e.g., 10, 20, 50)
+  0.0 0.0 0.0          EULER ANGLES [Rz,Ry,Rz](deg) TO ROTATE (No rotation)
+  0.0 0.0 0.0          CARTESIAN COMPONENTS [DX,DY,DZ](cm) OF POSITION SHIFT (PSF origin at 0,0,0)
+  0                    VALIDATE BEFORE SIMULATION (0=NO for faster start with trusted PSF)
+  7.0e6                MAX PSF ENERGY (eV) (Set slightly above your max source energy, e.g. 6MeV source -> 7MeV)
+[END OF SPSF SECTION]
+
+
+# >>>> EM fields >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[SECTION EMF v.2024-02-04]
+  0.0 0.0 0.0          ELECTRIC FIELD (volt/cm)
+  0.0 0.0 0.0          MAGNETIC FIELD (gauss)
+  0.01                 ULDV PARAMETER
+  0.01                 ULDE PARAMETER
+  0.01                 ULEM PARAMETER
+[END OF EMF SECTION]
+
+
+# >>>> PENGEOM+PENVOX >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[SECTION PENGEOM+PENVOX v.2009-06-15]
+  srs.geo              QUADRICS FILE NAME (Your working .geo file)
+  -                    VOXELS FILE NAME, USE '-' IF NONE
+  1                    TRANSPARENT QUADRIC MAT
+  10                   GRANULARITY TO SCAN VOXELS
+[END OF GEO SECTION]
+
+
+# >>>> TRANSPORT PARAMETERS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+[SECTION PENELOPE v.2019-08-06]
+  MAT# FILE___(max 20 char) EABS(e-)  EABS(ph)  EABS(e+)  C1    C2    WCC      WCR      DSMAX   COMMENTS
+   1   W_alloy95NiFe.mat    5.0e5     1.0e5     5.0e5     0.10  0.10  5.0e5    5.0e5    1.0e30  ! Tungsten Alloy
+   2   water.mat            6.0e4     6.0e3     1.0e4     0.1   0.1   6.0e4    6.0e3    1.0e30  ! Water
+   3   air.mat              1.0e5     1.0e4     1.0e5     0.10  0.10  1.0e5    1.0e5    1.0e30  ! Air
+   4   W.mat                100.0e3   100.0e3   100.0e3   0.1   0.1   100.0e3  100.0e3  0.04    ! W target
+  -1 (SET MAT=-1 TO END THE LIST)
+[END OF PEN SECTION]
+
+
+# >>>> TALLIES >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Phantom is at Z = -90cm to -130cm.
+# Depth-dose: z in [0,7] cm implies global Z in [-90, -97] cm.
+# Cylindrical dose: z in [0,7] cm implies global Z in [-90, -97] cm.
+
+[SECTION TALLY VOXEL DOSE v.2014-12-27]
+ OFF                             STATUS (ON or OFF)
+ 0  0                            ROI X-INDEX MIN,MAX (0 0 FOR ALL VOXELS)
+ 0  0                            ROI Y-INDEX MIN,MAX (0 0 FOR ALL VOXELS)
+ 0  0                            ROI Z-INDEX MIN,MAX (0 0 FOR ALL VOXELS)
+ 0                               PRINT VOXELS MASS IN REPORT (1=YES,0=NO)
+ 1                               PRINT COORDINATES IN REPORT (1=YES,0=NO,-1=NO&BINARYFORMAT)
+ 0.0                             RELATIVE UNCERTAINTY (%) REQUESTED
+[END OF VDD SECTION]
+
+[SECTION TALLY SPATIAL DOSE DISTRIB v.2009-06-15]
+  ON                   STATUS (ON or OFF)
+  -5.0  5.0  0.0       XMIN,XMAX(cm),NXBIN (0 FOR DX=infty)
+  -5.0  5.0  0.0       YMIN,YMAX(cm),NYBIN (0 FOR DY=infty)
+  -130.0 -90.0 300     ZMIN,ZMAX(cm),NZBIN (e.g., 2mm Z-voxels for 60cm depth)
+  1                    PRINT COORDINATES IN REPORT (1=YES)
+  1.0                  RELATIVE UNCERTAINTY (%) REQUESTED
+[END OF SDD SECTION]
+
+[SECTION TALLY CYLINDRICAL DOSE DISTRIB v.2009-06-15]
+  ON                   STATUS (ON or OFF)
+  0.0  10.0  50        RMIN,RMAX(cm),NRBIN (e.g., 1mm radial bins for R=20cm)
+  -100.0 -90.0 50      ZMIN,ZMAX(cm),NZBIN (e.g., 1cm Z-bins for 60cm depth)
+  1                    PRINT COORDINATES IN REPORT (1=YES)
+  0.0                  RELATIVE UNCERTAINTY (%) REQUESTED
+[END OF CDD SECTION]
+
+[SECTION TALLY SPHERICAL DOSE DISTRIB v.2009-06-15]
+ OFF                             STATUS (ON or OFF)
+ 0.0  1.0  50                    RMIN,RMAX(cm),NRBIN (>0)
+ 1                               PRINT COORDINATES IN REPORT (1=YES,0=NO)
+ 0.0                             RELATIVE UNCERTAINTY (%) REQUESTED
+[END OF SPD SECTION]
+
+[SECTION TALLY ENERGY DEPOSITION v.2012-06-01]
+ ON                             STATUS (ON or OFF)
+ 2                               DETECTION MATERIAL
+ 0.0                             RELATIVE UNCERTAINTY (%) REQUESTED
+[END OF EDP SECTION]
+
+[SECTION TALLY PULSE HEIGHT SPECTRUM v.2012-06-01]
+ OFF                             STATUS (ON or OFF)
+ 1                               DETECTION MATERIAL
+ 0.0  1.0e9  100                 EMIN,EMAX(eV), No. OF E BINS
+ 0.0  0.0                        A(eV^2),B(eV) FOR GAUSSIAN CONVOLUTION FWHM[eV]=sqrt(A+B*E[eV])
+ 0.0                             RELATIVE UNCERTAINTY (%) REQUESTED
+[END OF PHS SECTION]
+
+[SECTION TALLY PIXELATED IMAGING DETECTOR v.2016-07-04]
+ OFF                             STATUS (ON or OFF)
+ 1                               DETECTION MATERIAL
+ 0                               FILTER PHOTON INTERACTION (0=NOFILTER, -1=UNSCATTERED, 1=RAYLEIGH, 2=COMPTON, 3=SECONDARIES, 9=MULTISCATTERED)
+ 0   100                         X-PIXEL SIZE(cm), No. X-PIXELS (ENTER 0 IN EITHER FIELD FOR AUTO)
+ 0   100                         Y-PIXEL SIZE(cm), No. Y-PIXELS (ENTER 0 IN EITHER FIELD FOR AUTO)
+ 1                               DETECTION MODE (1=ENERGY INTEGRATING, 2=PHOTON COUNTING, 3=PULSE HEIGHT SPECTRUM aka ENERGY DISCRIMINATING)
+ 0.0  1.0e6  100                 EMIN,EMAX(eV), No. OF E BINS (EMIN,EMAX USED ONLY FOR MODE=2,3; No.BINS USED ONLY FOR MODE=3)
+ 1                               REPORT FORMAT (1=COLUMNAR, 2=MATRIX, 3=BINARY)
+ 0.0                             RELATIVE UNCERTAINTY (%) REQUESTED
+  SUBSECTION FOR SIGNAL COLLECTION EFFECTS:
+ OFF                             ACTIVATE SIGNAL COLLECTION EFFECTS (ON or OFF)
+ 1                               WRITE POINT SPREAD FUNCTION TO A FILE (1=YES,0=NO)
+ 0.5      26.7                   CE0,CE1(cm^-1); COEFFS FOR COLLECTION EFFICIENCY: CE(z)=CE0+CE1*z
+ 30.0e-4  -0.2                   FW0(cm),FW1; COEFFS FOR FWHM(z)= FW0+FW1*z
+ 0.0       0.0                   A,B FOR SIGNAL (S) GAUSSIAN NOISE WITH FWHM(S)=sqrt(A+B*S) (USED ONLY FOR DET MODE=2,3)
+[END OF PID SECTION]
+
+[SECTION TALLY FLUENCE TRACK LENGTH v.2012-06-01]
+ OFF                             STATUS (ON or OFF)
+ 1                               DETECTION MATERIAL
+ 1.0e2  1.0e9  70 LOG            EMIN,EMAX(eV), No. OF E BINS, APPEND 'LOG' FOR A LOG SCALE
+ 0.0                             RELATIVE UNCERTAINTY (%) REQUESTED
+[END OF FTL SECTION]
+
+[SECTION TALLY PHOTON FLUENCE POINT v.2015-05-31]
+ OFF                             STATUS (ON or OFF)
+ OFF                             DEBUG ATTENUATION COEFFICIENTS (ON or OFF)
+ 0.0  0.0  1.0                   DETECTOR POSITION COORDINATES (cm)
+-0.1                             RADIUS OF EXCLUSION SPHERE AROUND DETECTOR (+ FOR cm, - FOR No. MFPs AT MAX E)
+ 0.0  1.0e6  100                 EMIN,EMAX(eV), No. OF E BINS IN SPECTRUM
+ 0.0                             RELATIVE UNCERTAINTY (%) REQUESTED
+[END OF PFP SECTION]
+
+[SECTION TALLY PHASE SPACE FILE v.2009-06-15]
+  OFF                  STATUS (ON or OFF)
+  0                    PSF FORMAT (0=STANDARD penEasy ASCII)
+  2                    DETECTION MATERIAL (Material 2 = Water, acts as absorber here)
+  output.psf           PSF FILENAME
+[END OF PSF SECTION]
+
+[SECTION TALLY PARTICLE CURRENT SPECTRUM v.2009-06-15]
+  ON                   STATUS (ON or OFF)
+  2                    DETECTION MATERIAL (Material 2 = Water)
+  0.0e6 30.0e6  150    EMIN,EMAX(eV), No. OF E BINS
+  0.0                  RELATIVE UNCERTAINTY (%) REQUESTED
+[END OF PCS SECTION]
+
+[SECTION TALLY PARTICLE TRACK STRUCTURE v.2009-06-15]
+ ON                              STATUS (ON or OFF)
+ 100                             NUMBER OF HISTORIES TO DISPLAY (~100 RECOMMENDED)
+[END OF PTS SECTION]
+
+
+# >>>> VARIANCE-REDUCTION >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+[SECTION INTERACTION FORCING v.2009-06-15]
+ OFF                             STATUS (ON or OFF)
+ 1.0                             DO NOT APPLY BELOW THIS STATISTICAL WEIGHT (WMIN)
+ MAT  KPAR  ICOL  FORCING  (SET MAT=-1 TO END LIST)
+  1   1     0     1.0
+ -1   0     0     1.0
+[END OF VRIF SECTION]
+
+[SECTION SPLITTING v.2015-05-30]
+  OFF                  STATUS (ON or OFF)
+  0.1                  WGHTMIN, DO NOT SPLIT BELOW THIS STATISTICAL WEIGHT
+  2                    SPLITTING MATERIAL
+  1                    SPLITTING MODE (1=SIMPLE; 2=ROTATIONAL; 3=XY)
+  20                   SPLITTING FACTOR
+  0.0 0.0 0.0          EULER ANGLES [Rz,Ry,Rz](deg), USED ONLY FOR MODES=2,3
+  0.0 0.0 0.0          SHIFT (cm), USED ONLY FOR MODES=2,3
+  0                    SIGN OF W ('+', '-' OR '0'=BOTH), USED ONLY FOR MODES=2,3
+  0.0 360.0            AZIMUTHAL INTERVAL PHI0 IN [0,360)deg AND DeltaPHI IN (0,360]deg, USED ONLY FOR MODE=2
+[END OF VRS SECTION]
+
+[SECTION RUSSIAN ROULETTE v.2009-06-15]
+ OFF                             STATUS (ON or OFF)
+ 1.0                             WGHTMAX, DO NOT PLAY ABOVE THIS STATISTICAL WEIGHT
+ 1                               RUSSIAN ROULETTE MATERIAL
+ 1.0                             SURVIVAL PROBABILITY
+[END OF VRRR SECTION]
+
+
+# >>>> END OF FILE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
